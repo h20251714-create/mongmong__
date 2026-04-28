@@ -18,7 +18,11 @@
 
 @layer base {
   body {
-    @apply bg-mood-cream text-mood-ink font-sans transition-colors duration-1000 cursor-none;
+    @apply bg-mood-cream text-mood-ink font-sans transition-colors duration-1000;
+    /* Only hide cursor on desktop where custom cursor is active */
+    @media (min-width: 768px) {
+      @apply cursor-none;
+    }
     background-image: radial-gradient(#E8E1F3 0.5px, transparent 0.5px);
     background-size: 20px 20px;
   }

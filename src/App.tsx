@@ -93,25 +93,29 @@ const NavBar = ({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 vintage-card bg-white border-2 border-[#D4C3A3] mx-4 mb-6 px-6 py-3 flex justify-between items-center z-50">
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        const isActive = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center space-y-1 transition-all ${
-              isActive ? 'text-mood-brown scale-110' : 'text-mood-brown/30'
-            }`}
-          >
-            <div className={`p-2 rounded-full transition-colors ${isActive ? 'bg-mood-beige/40 shadow-inner' : ''}`}>
-              <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-            </div>
-            <span className="text-[10px] font-bold">{tab.label}</span>
-          </button>
-        );
-      })}
+    <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="max-w-xl mx-auto px-4 mb-6">
+        <div className="vintage-card bg-white border-2 border-[#D4C3A3] px-6 py-3 flex justify-between items-center shadow-2xl">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center space-y-1 transition-all ${
+                  isActive ? 'text-mood-brown scale-110' : 'text-mood-brown/30'
+                }`}
+              >
+                <div className={`p-2 rounded-full transition-colors ${isActive ? 'bg-mood-beige/40 shadow-inner' : ''}`}>
+                  <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                </div>
+                <span className="text-[10px] font-bold">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
@@ -481,10 +485,11 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen px-6 pt-12 pb-32 overflow-x-hidden relative">
+    <div className="min-h-screen relative overflow-x-hidden">
       <WeatherBackground emotion={currentEmotion} />
       
-      {/* Precision Water Drop Cursor (Correct offset to tip) */}
+      <div className="max-w-xl mx-auto px-6 pt-12 pb-32 min-h-screen relative z-10">
+        {/* Precision Water Drop Cursor (Correct offset to tip) */}
       <motion.div 
         className="cursor-drop hidden md:block"
         animate={{ 
@@ -1159,6 +1164,7 @@ export default function App() {
       {!showEmotionPicker && !showChat && (
         <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
+      </div>
     </div>
   );
 }
