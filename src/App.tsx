@@ -306,13 +306,24 @@ export default function App() {
 
   const handleGoogleLogin = async () => {
     try {
-      if (!auth || !googleProvider || Object.keys(auth).length === 1) {
-        throw new Error("Firebase auth not properly initialized. Please check console.");
-      }
-      await signInWithPopup(auth, googleProvider);
+      console.log("Starting Google Login...");
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Login Success:", result.user.email);
     } catch (err: any) {
-      console.error("Login Error:", err);
-      alert(`로그인 오류가 발생했습니다: ${err.message || "알 수 없는 오류"}`);
+      console.error("Detailed Login Error:", err);
+      let errorMessage = "로그인 중 오류가 발생했습니다.";
+      
+      if (err.code === 'auth/popup-blocked') {
+        errorMessage = "팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.";
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = "로그인 창이 닫혔습니다. 다시 시도해주세요.";
+      } else if (err.code === 'auth/unauthorized-domain') {
+        errorMessage = "허용되지 않은 도메인입니다. Firebase 콘솔에서 현재 도메인을 추가해야 합니다.";
+      } else if (err.message) {
+        errorMessage = `오류: ${err.message}`;
+      }
+      
+      alert(errorMessage);
     }
   };
 

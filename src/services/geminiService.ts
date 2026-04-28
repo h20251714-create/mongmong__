@@ -35,7 +35,7 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: messages.map(m => ({
-        role: m.role === 'assistant' ? 'model' : m.role,
+        role: m.role,
         parts: [{ text: m.text }]
       })),
       config: {
