@@ -1,35 +1,55 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage, EmotionType } from "../types";
 
-// Lazy initialization to prevent crash if API key is missing during bundle load
+// Helper to safely get API key from environment
+function getApiKey(): string | undefined {
+  // In some environments, process.env is polyfilled, in others it's empty
+  try {
+    // Vite 'define' replaces this pattern with the actual value (string or undefined)
+    const key = process.env.GEMINI_API_KEY as string | undefined;
+    if (key && key !== "MY_GEMINI_API_KEY" && key !== "undefined" && key !== "") {
+      return key;
+    }
+  } catch (e) {
+    // Ignore ReferenceError if process is not defined
+  }
+
+  return undefined;
+}
+
+// Lazy initialization
 let aiInstance: GoogleGenAI | null = null;
 
 const getAI = () => {
     if (aiInstance) return aiInstance;
     
-    // In Vite, process.env.GEMINI_API_KEY might be defined if injected by CI/CD or .env
-    const key = (typeof process !== 'undefined' && process.env) ? process.env.GEMINI_API_KEY : undefined;
+    const key = getApiKey();
     
-    if (!key || key === "MY_GEMINI_API_KEY" || key === "undefined") {
-        console.warn("GEMINI_API_KEY is not set. Gemini features will be limited.");
+    if (!key) {
+        console.warn("GEMINI_API_KEY is not set or using placeholder. Gemini features will be disabled.");
         return null;
     }
     
-    aiInstance = new GoogleGenAI({ apiKey: key });
-    return aiInstance;
+    try {
+      aiInstance = new GoogleGenAI({ apiKey: key });
+      return aiInstance;
+    } catch (error) {
+      console.error("Failed to initialize GoogleGenAI:", error);
+      return null;
+    }
 };
 
 const SYSTEM_PROMPT = `
 당신은 감정 치유 앱 'Mood Walk'의 따뜻하고 공감 능력이 뛰어난 AI 가이드입니다. 
-사용자의 감정을 깊이 이해하고, 위로하며, 치유의 과정을 돕는 것이 목적입니다.
+당신의 이름은 '몽글'입니다. 사용자의 감정을 깊이 이해하고, 위로하며, 치유의 과정을 돕는 것이 목적입니다.
 모든 대화와 편지는 부드럽고, 친절하며, 공감적인 한국어로 작성하십시오.
 사용자에게 직접적인 조언보다는 경청하고 공감하는 태도를 유지하세요.
-존댓말을 사용하세요.
+존댓말을 사용하세요. 답변은 너무 길지 않게, 따뜻한 온기가 느껴지도록 작성하세요.
 `;
 
 export async function getEmotionalConversation(messages: ChatMessage[], currentEmotion: EmotionType) {
   const ai = getAI();
-  if (!ai) return "죄송해요, AI 기능이 현재 비활성화되어 있어요. (API 키를 확인해 주세요)";
+  if (!ai) return "죄송해요, 서비스 준비 중이에요. 따뜻한 마음으로 잠시만 기다려 주시겠어요?";
 
   try {
     const response = await ai.models.generateContent({
@@ -44,15 +64,18 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
     });
 
     return response.text || "죄송해요, 잠시 생각을 정리하고 있어요. 다시 말씀해 주시겠어요?";
-  } catch (error) {
-    console.error("Gemini Error:", error);
+  } catch (error: any) {
+    console.error("Gemini Conversation Error:", error);
+    if (error?.message?.includes("API_KEY_INVALID") || error?.message?.includes("API key not found")) {
+        return "죄송해요, AI 인증에 문제가 생겼어요. 관리자에게 문의해 주세요.";
+    }
     return "죄송해요, 잠시 연결이 불안정해요. 마음을 정리하고 다시 올게요.";
   }
 }
 
 export async function generateDailyLetter(emotion: EmotionType, journalContent: string, activityInfo: string) {
   const ai = getAI();
-  if (!ai) return "당신의 오늘 하루가 별처럼 빛나기를 바라는 마음을 전합니다. (AI 기능을 활성화하면 더 개인화된 편지를 읽으실 수 있어요)";
+  if (!ai) return "오늘 하루 고생 많으셨어요. 당신의 성장을 몽글이가 항상 응원할게요. (AI 연결이 필요해요)";
 
   const prompt = `
 사용자의 오늘 하루를 바탕으로 위로와 격려의 마음을 담은 '감정 편지'를 써주세요.
@@ -75,9 +98,9 @@ export async function generateDailyLetter(emotion: EmotionType, journalContent: 
     });
 
     return response.text || "오늘 하루, 당신이 걸어온 모든 길에 따뜻한 위로를 전합니다.";
-  } catch (error) {
-    console.error("Gemini Error:", error);
-    return "오늘 하루 고생 많으셨어요. 당신의 진심이 누군가에게 닿기를, 그리고 스스로에게도 따뜻한 밤이 되기를.";
+  } catch (error: any) {
+    console.error("Gemini Letter Error:", error);
+    return "당신의 오늘 하루가 별처럼 빛나기를 바라는 마음을 전합니다. 내일은 더 맑은 마음으로 만나요.";
   }
 }
 
@@ -102,7 +125,8 @@ export async function getInitialQuestions(emotion: EmotionType) {
 
     return response.text || "오늘 하루는 어떠셨나요? 당신의 마음이 머문 자리가 궁금해요.";
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini Questions Error:", error);
     return "오늘 하루, 당신의 마음속에는 어떤 이야기가 담겨 있나요?";
   }
 }
+
