@@ -702,6 +702,53 @@ export default function App() {
                   </div>
                 </header>
 
+                <section className="grid grid-cols-1 gap-4">
+                  <button 
+                    onClick={() => {
+                      if (currentEmotion) {
+                        setShowChat(true);
+                        setActiveTab('home');
+                      } else {
+                        setShowEmotionPicker(true);
+                        setActiveTab('home');
+                      }
+                    }}
+                    className="vintage-card p-6 bg-white/80 border-2 border-mood-beige flex items-center justify-between group active:scale-95 transition-all shadow-md overflow-hidden relative"
+                  >
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-mood-beige/20 rounded-full blur-2xl group-hover:bg-mood-beige/40 transition-colors" />
+                    <div className="flex items-center space-x-4 relative z-10">
+                      <div className="p-3 bg-mood-brown text-white rounded-2xl shadow-lg">
+                        <MessageCircle size={24} />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-bold text-lg text-mood-brown">몽글이와 대화하기</h3>
+                        <p className="text-xs text-mood-ink/50 font-medium">지금 내 마음을 털어놓고 위로받아요</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="text-mood-brown/30 group-hover:text-mood-brown transition-colors relative z-10" size={20} />
+                  </button>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => {
+                        setShowEmotionPicker(true);
+                        setActiveTab('home');
+                      }}
+                      className="vintage-card p-4 bg-white/60 border border-mood-beige flex flex-col items-center space-y-2 active:scale-95 transition-all"
+                    >
+                      <SmilePlus size={20} className="text-mood-brown" />
+                      <span className="text-xs font-bold text-mood-brown">감정 다시 고르기</span>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('activity')}
+                      className="vintage-card p-4 bg-white/60 border border-mood-beige flex flex-col items-center space-y-2 active:scale-95 transition-all"
+                    >
+                      <Footprints size={20} className="text-mood-brown" />
+                      <span className="text-xs font-bold text-mood-brown">산책 시작하기</span>
+                    </button>
+                  </div>
+                </section>
+
                 <section className="vintage-card p-6 flex flex-col items-center text-center relative overflow-hidden bg-white/60 border-2 border-[#D4C3A3] min-h-[460px]">
                   {/* Forest Growth Layer - More vivid as it grows */}
                   <div className="absolute bottom-6 left-0 right-0 h-40 pointer-events-none flex justify-center items-end space-x-[-15px] z-0 px-4">
