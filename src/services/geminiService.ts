@@ -50,7 +50,7 @@ const SYSTEM_PROMPT = `
 
 export async function getEmotionalConversation(messages: ChatMessage[], currentEmotion: EmotionType) {
   const ai = getAI();
-  if (!ai) return "죄송해요, 서비스 준비 중이에요. 따뜻한 마음으로 잠시만 기다려 주시겠어요? (AI 설정이 필요해요)";
+  if (!ai) return "앗! 아직 몽글이의 머릿속(API 키)이 비어있어요. 왼쪽 '설정(⚙️)' 메뉴의 'Secrets' 항목에 'GEMINI_API_KEY'를 추가해 주시면 바로 대화를 시작할 수 있어요!";
 
   try {
     const response = await ai.models.generateContent({
@@ -73,7 +73,7 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
 
 export async function generateDailyLetter(emotion: EmotionType, journalContent: string, activityInfo: string) {
   const ai = getAI();
-  if (!ai) return "오늘 하루 고생 많으셨어요. 당신의 성장을 몽글이가 항상 응원할게요. (AI 설정이 필요해요)";
+  if (!ai) return "오늘 하루 고생 많으셨어요. 몽글이가 당신을 위해 편지를 쓰고 싶지만, 아직 몽글이의 머릿속(API 키)이 비어있어요. '설정(⚙️)'에서 'GEMINI_API_KEY'를 등록해 주시면 다음 산책부터는 따뜻한 편지를 전해드릴게요.";
 
   const prompt = `
 사용자의 오늘 하루를 바탕으로 위로와 격려의 마음을 담은 '감정 편지'를 써주세요.
