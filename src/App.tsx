@@ -495,18 +495,28 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen px-6 pt-12 pb-32 overflow-x-hidden relative">
+    <div 
+      className="min-h-screen relative overflow-x-hidden w-full h-full"
+      onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+    >
       <WeatherBackground emotion={currentEmotion} />
       
       {/* Precision Water Drop Cursor (Correct offset to tip) */}
       <motion.div 
-        className="cursor-drop hidden md:block"
+        className="cursor-drop hidden md:flex items-center justify-center p-0"
+        style={{ 
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          pointerEvents: 'none',
+          zIndex: 999999
+        }}
         animate={{ 
           x: mousePos.x - 18, 
           y: mousePos.y - 18,
-          scale: isHovering ? 1.5 : 1,
+          scale: isHovering ? 1.4 : 1,
         }}
-        transition={{ type: 'spring', damping: 30, stiffness: 500, mass: 0.1 }}
+        transition={{ type: 'spring', damping: 35, stiffness: 600, mass: 0.1 }}
       />
 
       {authError && (
@@ -592,10 +602,10 @@ export default function App() {
             <div className="mb-4 text-mood-brown animate-float">
               <Smile size={60} strokeWidth={1.5} />
             </div>
-            <h1 className="text-3xl font-bold mb-2 mt-2">오늘, 마음이 어때요?</h1>
-            <p className="text-mood-ink/50 mb-10 text-lg">당신의 몽글몽글한 감정을 들려주세요.</p>
+            <h1 className="text-4xl font-bold mb-3 mt-4 text-mood-brown leading-tight">오늘, 마음이 어때요?</h1>
+            <p className="text-mood-ink/60 mb-12 text-xl font-medium">당신의 몽글몽글한 감정을 가만히 들여다봐요.</p>
             
-            <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-5xl px-4">
               {(Object.keys(EMOTIONS) as EmotionType[]).map((key) => {
                 const info = EMOTIONS[key];
                 return (

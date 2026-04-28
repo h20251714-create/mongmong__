@@ -13,7 +13,7 @@ export interface EmotionInfo {
 export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   Happy: {
     type: 'Happy',
-    label: '기쁨',
+    label: '몽글몽글 기쁨',
     icon: 'smile',
     color: 'bg-orange-100',
     weather: 'sunny',
@@ -21,7 +21,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Sad: {
     type: 'Sad',
-    label: '슬픔',
+    label: '촉촉한 슬픔',
     icon: 'frown',
     color: 'bg-blue-100',
     weather: 'rainy',
@@ -29,7 +29,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Lonely: {
     type: 'Lonely',
-    label: '외로움',
+    label: '쓸쓸한 외로움',
     icon: 'user',
     color: 'bg-indigo-100',
     weather: 'cloudy_night',
@@ -37,7 +37,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Angry: {
     type: 'Angry',
-    label: '분노',
+    label: '불꽃 같은 분노',
     icon: 'zap',
     color: 'bg-red-100',
     weather: 'stormy',
@@ -45,7 +45,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Calm: {
     type: 'Calm',
-    label: '평온',
+    label: '포근한 평온',
     icon: 'sun',
     color: 'bg-teal-100',
     weather: 'sunset',
@@ -53,7 +53,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Anxious: {
     type: 'Anxious',
-    label: '불안',
+    label: '어지러운 불안',
     icon: 'wind',
     color: 'bg-purple-100',
     weather: 'foggy',
@@ -61,7 +61,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Tired: {
     type: 'Tired',
-    label: '피곤',
+    label: '지친 무기력',
     icon: 'moon',
     color: 'bg-gray-100',
     weather: 'misty',
@@ -69,7 +69,7 @@ export const EMOTIONS: Record<EmotionType, EmotionInfo> = {
   },
   Empty: {
     type: 'Empty',
-    label: '허전함',
+    label: '텅 빈 허전함',
     icon: 'circle',
     color: 'bg-slate-100',
     weather: 'overcast',
