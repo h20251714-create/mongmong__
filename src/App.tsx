@@ -586,8 +586,8 @@ export default function App() {
                 <div className="flex-1">
                   <p className="text-sm font-bold">앗! 몽글이가 아직 조용해요</p>
                   <p className="text-[10px] leading-relaxed opacity-80 mt-1">
-                    왼쪽 사이드바 맨 아래의 <span className="font-bold underline">⚙️ Settings (톱니바퀴)</span>를 클릭하고, 
-                    <span className="font-bold">Secrets</span> 항목에 <span className="font-bold text-mood-brown underline">GEMINI_API_KEY</span>를 등록해 주세요!
+                    오른쪽 <span className="font-bold underline">Secrets</span> 패널에서 <span className="font-bold underline">GEMINI_API_KEY</span> 옆의 빈칸에 
+                    아까 복사한 키를 붙여넣어 주세요! (새로 만들지 않으셔도 됩니다.)
                   </p>
                 </div>
               </div>

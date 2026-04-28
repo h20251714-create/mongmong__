@@ -3,16 +3,20 @@ import { ChatMessage, EmotionType } from "../types";
 
 // Helper to safely get API key from environment
 function getApiKey(): string | undefined {
-  // Check multiple possible locations for the key
+  // 1. First, check explicitly provided key (since user is having trouble with Secrets UI)
+  const HARDCODED_KEY = "AIzaSyB1vyAASaAY5IbXw8A-OtP7hsfMNa8zbxU";
+  
+  // 2. Check multiple possible locations for the key
   const keys = [
     process.env.GEMINI_API_KEY,
     process.env.GOOGLE_API_KEY,
     (import.meta as any).env?.VITE_GEMINI_API_KEY,
     (import.meta as any).env?.VITE_GOOGLE_API_KEY,
+    HARDCODED_KEY // Fallback to the key the user provided
   ];
 
   for (const key of keys) {
-    if (key && key !== "MY_GEMINI_API_KEY" && key !== "undefined" && key !== "") {
+    if (key && key !== "MY_GEMINI_API_KEY" && key !== "undefined" && key !== "" && !key.includes("AI Studio Free Tier")) {
       console.log("Successfully found an API key.");
       return key;
     }
