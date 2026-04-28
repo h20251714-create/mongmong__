@@ -318,7 +318,9 @@ export default function App() {
       } else if (err.code === 'auth/popup-closed-by-user') {
         errorMessage = "로그인 창이 닫혔습니다. 다시 시도해주세요.";
       } else if (err.code === 'auth/unauthorized-domain') {
-        errorMessage = "허용되지 않은 도메인입니다. Firebase 콘솔에서 현재 도메인을 추가해야 합니다.";
+        errorMessage = `허용되지 않은 도메인입니다.\n\n해결 방법:\n1. Firebase 콘솔 접속\n2. Authentication > Settings > Authorized domains 로 이동\n3. 'Add domain' 버튼 클릭 후 아래 도메인 추가\n\n도메인: ${window.location.hostname}`;
+      } else if (err.code) {
+        errorMessage = `오류 코드: ${err.code}\n메시지: ${err.message}`;
       } else if (err.message) {
         errorMessage = `오류: ${err.message}`;
       }
