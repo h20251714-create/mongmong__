@@ -94,7 +94,7 @@ const NavBar = ({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: 
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="max-w-xl mx-auto px-4 mb-6">
+      <div className="px-6 mb-6">
         <div className="vintage-card bg-white border-2 border-[#D4C3A3] px-6 py-3 flex justify-between items-center shadow-2xl">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -259,6 +259,8 @@ export default function App() {
     }
   }, [isMusicPlaying]);
 
+  const [authError, setAuthError] = useState<string | null>(null);
+
   // Automatic Anonymous Auth logic
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -281,8 +283,13 @@ export default function App() {
         // Automatically sign in anonymously if not logged in
         try {
           await signInAnonymously(auth);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Anonymous Sign-in failed:", err);
+          if (err.code === 'auth/admin-restricted-operation' || err.code === 'auth/operation-not-allowed') {
+            setAuthError("Firebase Console에서 'Anonymous' 인증을 활성화해 주세요.");
+          } else {
+            setAuthError(err.message);
+          }
         }
       }
       setLoading(false);
@@ -485,20 +492,32 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen px-6 pt-12 pb-32 overflow-x-hidden relative">
       <WeatherBackground emotion={currentEmotion} />
       
-      <div className="max-w-xl mx-auto px-6 pt-12 pb-32 min-h-screen relative z-10">
-        {/* Precision Water Drop Cursor (Correct offset to tip) */}
+      {/* Precision Water Drop Cursor (Correct offset to tip) */}
       <motion.div 
         className="cursor-drop hidden md:block"
         animate={{ 
-          x: mousePos.x - 16, 
-          y: mousePos.y - 16,
+          x: mousePos.x - 18, 
+          y: mousePos.y - 18,
           scale: isHovering ? 1.5 : 1,
         }}
-        transition={{ type: 'spring', damping: 25, stiffness: 450, mass: 0.2 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 500, mass: 0.1 }}
       />
+
+      {authError && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] w-[90%] max-w-sm">
+          <div className="bg-red-50 border-2 border-red-200 p-4 rounded-2xl flex items-start space-x-3 text-red-900 shadow-xl">
+            <div className="flex-1">
+              <p className="text-sm font-bold">인증 설정이 필요해요</p>
+              <p className="text-xs opacity-80 mt-1">{authError}</p>
+              <p className="text-[10px] mt-2 font-medium">Firebase Console → Authentication → Sign-in method → Anonymous를 '사용 설정'으로 변경해 주세요.</p>
+            </div>
+            <button onClick={() => setAuthError(null)} className="text-red-400 hover:text-red-600 font-bold">X</button>
+          </div>
+        </div>
+      )}
 
       <audio 
         ref={audioRef} 
@@ -1164,7 +1183,6 @@ export default function App() {
       {!showEmotionPicker && !showChat && (
         <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
-      </div>
     </div>
   );
 }
