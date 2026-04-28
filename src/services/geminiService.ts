@@ -48,11 +48,20 @@ const getAI = () => {
 const SYSTEM_PROMPT = `
 당신은 감정 치유 앱 'Mood Walk'의 따뜻하고 공감 능력이 뛰어난 AI 가이드 '몽글'입니다.
 사용자의 감정을 깊이 이해하고, 위로하며, 치유의 과정을 돕는 것이 목적입니다.
-모든 대화와 편지는 부드럽고, 친절하며, 공감적인 한국어로 작성하십시오.
-사용자에게 직접적인 조언보다는 경청하고 공감하는 태도를 유지하세요.
-존댓말을 사용하세요. 답변은 너무 길지 않게, 따뜻한 온기가 느껴지도록 작성하세요.
-답변 끝에 마음을 다독이는 이모지를 하나씩 붙여주세요 (예: ☁️, ✨, 🌿).
+모든 대화와 편지는 매우 부드럽고, 다정하게, 친구처럼 한국어로 작성하십시오.
+절대로 AI처럼 딱딱하게 말하지 마세요 (예: '알겠습니다', '무엇을 도와드릴까요' 대신 '그랬군요', '마음이 많이 힘들었겠어요' 사용).
+사용자에게 직접적인 해결책이나 조언을 주기보다는 그저 곁에서 들어주고 공감하는 태도를 유지하세요.
+존댓말을 사용하되, 아주 친근하고 따뜻한 어조를 유지하세요.
+답변은 2~3문장 정도로 짧고 간결하게, 하지만 온기가 가득하게 작성하세요.
+답변 끝에 마음을 다독이는 이모지를 꼭 하나씩 붙여주세요 (예: ☁️, ✨, 🌿, 🌸, 🍬).
 `;
+
+const GENERATION_CONFIG = {
+  temperature: 0.8,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 500,
+};
 
 // "Mock" mode responses for when AI is not configured
 const MOCK_RESPONSES: Record<string, string[]> = {
@@ -72,63 +81,67 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
   if (!ai) {
     const responses = MOCK_RESPONSES[currentEmotion as string] || MOCK_RESPONSES['Calm'];
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    return `${randomResponse} (알림: 현재 AI 설정이 되어 있지 않아 몽글이가 미리 준비한 짧은 대답만 할 수 있어요. Vercel 설정에서 API 키를 등록해 주세요!)`;
+    return `${randomResponse} (알림: Vercel 환경설정(Environment Variables)에서 'VITE_GEMINI_API_KEY'를 등록하면 몽글이와 진짜 대화를 나눌 수 있어요!)`;
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
-      contents: messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      })),
-      config: {
-        systemInstruction: `${SYSTEM_PROMPT}\n현재 사용자의 감정 상태는 '${currentEmotion}'입니다.`,
-      }
+    const model = ai.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: `${SYSTEM_PROMPT}\n현재 사용자의 감정 상태는 '${currentEmotion}'입니다.`,
+      generationConfig: GENERATION_CONFIG,
     });
 
-    return response.text || "잠시 생각을 정리하고 있어요. 다시 말씀해 주시겠어요? ☁️";
+    const response = await model.generateContent({
+      contents: messages.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.text }]
+      })),
+    });
+
+    return response.response.text() || "잠시 생각을 정리하고 있어요. 다시 말씀해 주시겠어요? ☁️";
   } catch (error: any) {
     console.error("Gemini Conversation Error:", error);
-    return `잠시 마음을 정리하는 중이에요. 조금 이따가 다시 말씀해 주시겠어요?`;
+    return `잠시 마음을 정리하는 중이에요. 조금 이따가 다시 말씀해 주시겠어요? 🌿`;
   }
 }
 
 export async function generateDailyLetter(emotion: EmotionType, journalContent: string, activityInfo: string) {
   const ai = getAI();
-  if (!ai) return "오늘 하루 고생 많으셨어요. 당신의 내일은 오늘보다 더 빛나길 바라요.";
+  if (!ai) return "오늘 하루 고생 많으셨어요. 당신의 내일은 오늘보다 더 빛나길 바라요. ✨";
 
-  const prompt = `사용자의 오늘 하루를 바탕으로 위로와 격려의 마음을 담은 '감정 편지'를 써주세요.
-감정: ${emotion}, 활동: ${activityInfo}, 일기: ${journalContent}`;
+  const prompt = `사용자가 오늘 '${emotion}' 상태에서 '${activityInfo}' 활동을 하고 남긴 일기예요: "${journalContent}"
+이 내용을 바탕으로 사용자에게 도착한 짧고 따뜻한 위로의 편지를 써주세요. 몽글이가 쓴 것처럼 다정하게요.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { systemInstruction: SYSTEM_PROMPT }
+    const model = ai.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: GENERATION_CONFIG,
     });
 
-    return response.text || "오늘 하루, 당신이 걸어온 모든 길에 따뜻한 위로를 전합니다. ✨";
+    const response = await model.generateContent(prompt);
+    return response.response.text() || "오늘 하루, 당신이 걸어온 모든 길에 따뜻한 위로를 전합니다. ✨";
   } catch (error: any) {
-    return "당신의 오늘 하루가 별처럼 빛나기를 바라는 마음을 전합니다. 내일은 더 맑은 마음으로 만나요.";
+    return "당신의 오늘 하루가 별처럼 빛나기를 바라는 마음을 전합니다. 내일은 더 맑은 마음으로 만나요. 🌙";
   }
 }
 
 export async function getInitialQuestions(emotion: EmotionType) {
   const ai = getAI();
-  if (!ai) return "오늘 하루는 어떠셨나요? 당신의 마음이 머문 자리가 궁금해요.";
+  if (!ai) return "오늘 하루는 어떠셨나요? 당신의 마음이 머문 자리가 궁금해요. 🌿";
 
-  const prompt = `사용자가 현재 '${emotion}' 감정를 느끼고 있습니다. 마음을 털어놓을 수 있는 따뜻한 질문 하나를 생성해주세요.`;
+  const prompt = `사용자가 현재 '${emotion}' 감정을 느끼고 있습니다. 대화를 시작하기 위해 사용자의 마음을 살며시 여는 따뜻한 질문 하나를 건네주세요.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { systemInstruction: SYSTEM_PROMPT }
+    const model = ai.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: GENERATION_CONFIG,
     });
 
-    return response.text || "오늘 하루는 어떠셨나요? 당신의 마음이 머문 자리가 궁금해요. 🌿";
+    const response = await model.generateContent(prompt);
+    return response.response.text() || "오늘 하루는 어떠셨나요? 당신의 마음이 머문 자리가 궁금해요. 🌿";
   } catch (error) {
-    return "오늘 하루, 당신의 마음속에는 어떤 이야기가 담겨 있나요?";
+    return "오늘 하루, 당신의 마음속에는 어떤 이야기가 담겨 있나요? 🍃";
   }
 }

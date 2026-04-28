@@ -286,13 +286,16 @@ export default function App() {
         } catch (err: any) {
           console.error("Anonymous Sign-in failed:", err);
           if (err.code === 'auth/admin-restricted-operation' || err.code === 'auth/operation-not-allowed') {
-            setAuthError("Firebase Console에서 'Anonymous' 인증을 활성화해 주세요.");
+            setAuthError("Firebase Console에서 'Anonymous' 인증을 활성화 하거나, 'Guest Mode'로 시작해 주세요.");
           } else {
             setAuthError(err.message);
           }
+          // If auth fails, we still allow them to enter as a guest
+          setLoading(false);
         }
       }
-      setLoading(false);
+      // Note: we don't set loading false here if we are waiting for signInAnonymously
+      if (u) setLoading(false); 
     });
     return () => unsubscribe();
   }, []);
@@ -508,13 +511,38 @@ export default function App() {
 
       {authError && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] w-[90%] max-w-sm">
-          <div className="bg-red-50 border-2 border-red-200 p-4 rounded-2xl flex items-start space-x-3 text-red-900 shadow-xl">
-            <div className="flex-1">
-              <p className="text-sm font-bold">인증 설정이 필요해요</p>
-              <p className="text-xs opacity-80 mt-1">{authError}</p>
-              <p className="text-[10px] mt-2 font-medium">Firebase Console → Authentication → Sign-in method → Anonymous를 '사용 설정'으로 변경해 주세요.</p>
+          <div className="bg-white border-2 border-red-200 p-6 rounded-[32px] flex flex-col space-y-4 text-red-900 shadow-2xl vintage-card">
+            <div className="flex items-center space-x-3">
+              <div className="bg-red-100 p-2 rounded-full">
+                <Smile size={20} className="text-red-500 opacity-50" />
+              </div>
+              <p className="text-lg font-bold">앗! 설정이 필요해요</p>
             </div>
-            <button onClick={() => setAuthError(null)} className="text-red-400 hover:text-red-600 font-bold">X</button>
+            <div className="space-y-2">
+              <p className="text-sm opacity-80 leading-relaxed font-chat">
+                몽글이가 당신을 기억하려면 Firebase 설정이 필요해요.<br/>
+              </p>
+              <div className="p-3 bg-red-50 rounded-xl text-[10px] font-medium border border-red-100">
+                Firebase Console → Authentication → Sign-in method → Anonymous '사용 설정'
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => setAuthError(null)} 
+                className="flex-1 bg-mood-brown text-white py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
+              >
+                확인했어요
+              </button>
+              <button 
+                onClick={() => {
+                  setAuthError(null);
+                  if (!user) setUser({ uid: 'guest-' + Math.random().toString(36).substr(2, 9) } as any);
+                }} 
+                className="flex-1 bg-mood-beige text-mood-brown py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
+              >
+                Guest로 시작
+              </button>
+            </div>
           </div>
         </div>
       )}
