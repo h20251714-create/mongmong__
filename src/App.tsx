@@ -78,7 +78,7 @@ const renderProfileIcon = (seed: string, size: number = 24, className: string = 
 };
 
 const CLALMING_TRACKS = [
-  { id: 'calm', title: '숲속의 평온한 선율', url: 'https://cdn.pixabay.com/audio/2022/02/22/audio_d0a13d6935.mp3' },
+  { id: 'calm', title: '숲속의 평온한 선율', url: 'https://cdn.pixabay.com/audio/2022/10/14/audio_338982367d.mp3' },
 ];
 
 // --- Components ---
@@ -501,12 +501,12 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-x-hidden w-full flex flex-col"
+      className="min-h-screen relative overflow-x-hidden w-full flex flex-col bg-[#FDFBF7]"
       onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
     >
       <WeatherBackground emotion={currentEmotion} />
       
-      {/* Precision Water Drop Cursor (Correct offset to tip) */}
+      {/* Precision Water Drop Cursor */}
       <motion.div 
         className="cursor-drop hidden md:flex items-center justify-center p-0"
         style={{ 
@@ -524,8 +524,9 @@ export default function App() {
         transition={{ type: 'spring', damping: 35, stiffness: 600, mass: 0.1 }}
       />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 w-full overflow-y-auto">
-        {authError && (
+      <div className="flex-1 flex flex-col items-center relative z-10 w-full overflow-y-auto">
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center min-h-[80vh] pt-12 pb-40 px-6">
+          {authError && (
           <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] w-[90%] max-w-sm">
             <div className="bg-white border-2 border-red-200 p-6 rounded-[32px] flex flex-col space-y-4 text-red-900 shadow-2xl vintage-card">
               <div className="flex items-center space-x-3">
@@ -594,7 +595,7 @@ export default function App() {
                    playAudio();
                 }
               }}
-              className="p-3 rounded-full bg-mood-brown text-white shadow-inner active:scale-95 transition-all w-12 h-12 flex items-center justify-center"
+              className={`p-3 rounded-full bg-mood-brown text-white shadow-inner active:scale-95 transition-all w-12 h-12 flex items-center justify-center ${!isMusicPlaying ? 'animate-pulse ring-4 ring-mood-brown/10' : ''}`}
             >
               {isMusicPlaying ? <Pause size={18} /> : <Play size={18} className="translate-x-0.5" />}
             </button>
@@ -1228,6 +1229,9 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      </div> 
+      </div>
 
       {!showEmotionPicker && !showChat && (
         <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
