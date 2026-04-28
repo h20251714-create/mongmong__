@@ -578,20 +578,6 @@ export default function App() {
             animate={{ opacity: 1, x: 0 }}
             className="flex flex-col h-[75vh]"
           >
-            {!isAIReady() && (
-              <div className="mb-4 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-start space-x-3 text-amber-900 shadow-sm animate-pulse-slow">
-                <div className="mt-0.5 bg-amber-200 rounded-full p-1">
-                  <Sparkles size={16} className="text-amber-700" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold">앗! 몽글이가 아직 조용해요</p>
-                  <p className="text-[10px] leading-relaxed opacity-80 mt-1">
-                    오른쪽 <span className="font-bold underline">Secrets</span> 패널에서 <span className="font-bold underline">GEMINI_API_KEY</span> 옆의 빈칸에 
-                    아까 복사한 키를 붙여넣어 주세요! (새로 만들지 않으셔도 됩니다.)
-                  </p>
-                </div>
-              </div>
-            )}
             <header className="flex justify-between items-center mb-6">
               <div className="flex items-center space-x-4">
                 <button 
