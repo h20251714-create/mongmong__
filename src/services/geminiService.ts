@@ -8,10 +8,10 @@ function getApiKey(): string | undefined {
   
   // 2. Check multiple possible locations for the key
   const keys = [
-    process.env.GEMINI_API_KEY,
-    process.env.GOOGLE_API_KEY,
     (import.meta as any).env?.VITE_GEMINI_API_KEY,
     (import.meta as any).env?.VITE_GOOGLE_API_KEY,
+    process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_API_KEY,
     HARDCODED_KEY // Fallback to the key the user provided
   ];
 
@@ -80,7 +80,7 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: messages.map(m => ({
         role: m.role,
         parts: [{ text: m.text }]
@@ -106,7 +106,7 @@ export async function generateDailyLetter(emotion: EmotionType, journalContent: 
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { systemInstruction: SYSTEM_PROMPT }
     });
@@ -125,7 +125,7 @@ export async function getInitialQuestions(emotion: EmotionType) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { systemInstruction: SYSTEM_PROMPT }
     });
