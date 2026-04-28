@@ -44,7 +44,7 @@ import {
   getInitialQuestions 
 } from './services/geminiService';
 import { auth, googleProvider, db } from './lib/firebase';
-import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { serverTimestamp } from 'firebase/firestore';
 import { 
   getUserProfile, 
@@ -254,7 +254,7 @@ export default function App() {
     }
   }, [isMusicPlaying]);
 
-  // Firebase Auth Observer
+  // Automatic Anonymous Auth logic
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
@@ -273,7 +273,12 @@ export default function App() {
           setIsNewUser(true);
         }
       } else {
-        setUser(null);
+        // Automatically sign in anonymously if not logged in
+        try {
+          await signInAnonymously(auth);
+        } catch (err) {
+          console.error("Anonymous Sign-in failed:", err);
+        }
       }
       setLoading(false);
     });
@@ -303,31 +308,6 @@ export default function App() {
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isWalking]);
-
-  const handleGoogleLogin = async () => {
-    try {
-      console.log("Starting Google Login...");
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("Login Success:", result.user.email);
-    } catch (err: any) {
-      console.error("Detailed Login Error:", err);
-      let errorMessage = "로그인 중 오류가 발생했습니다.";
-      
-      if (err.code === 'auth/popup-blocked') {
-        errorMessage = "팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.";
-      } else if (err.code === 'auth/popup-closed-by-user') {
-        errorMessage = "로그인 창이 닫혔습니다. 다시 시도해주세요.";
-      } else if (err.code === 'auth/unauthorized-domain') {
-        errorMessage = `허용되지 않은 도메인입니다.\n\n해결 방법:\n1. Firebase 콘솔 접속\n2. Authentication > Settings > Authorized domains 로 이동\n3. 'Add domain' 버튼 클릭 후 아래 도메인 추가\n\n도메인: ${window.location.hostname}`;
-      } else if (err.code) {
-        errorMessage = `오류 코드: ${err.code}\n메시지: ${err.message}`;
-      } else if (err.message) {
-        errorMessage = `오류: ${err.message}`;
-      }
-      
-      alert(errorMessage);
-    }
-  };
 
   const handleFinishSetup = async () => {
     if (!user) return;
@@ -446,23 +426,8 @@ export default function App() {
     </div>
   );
 
-  if (!user) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-mood-cream px-6 text-center rainbow-bg">
-      <div className="mb-8 p-10 vintage-card bg-white/60">
-        <Sparkles className="mx-auto mb-6 text-mood-brown" size={48} />
-        <h1 className="text-4xl font-bold mb-4 text-mood-brown leading-tight">몽글몽글한 밤,<br/>나만의 감정 산책</h1>
-        <p className="text-mood-ink/60 mb-10 font-medium">당신의 마음을 가장 부드럽게 안아주는 곳</p>
-        <button 
-          onClick={handleGoogleLogin}
-          className="w-full bg-mood-brown text-white py-4 rounded-3xl font-bold text-lg shadow-xl active:scale-95 transition-all flex items-center justify-center space-x-3"
-        >
-          <span>구글로 몽글 시작하기</span>
-          <ArrowRight size={20} />
-        </button>
-      </div>
-    </div>
-  );
-
+  // Remove the login screen as we now use automatic guest mode
+  
   if (isNewUser) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 rainbow-bg">
       <motion.div 
@@ -1077,11 +1042,16 @@ export default function App() {
                   )}
 
                   <button 
-                    onClick={() => signOut(auth)}
+                    onClick={() => {
+                      if (confirm("모든 산책 기록과 설정을 초기화할까요? 이 작업은 되돌릴 수 없습니다.")) {
+                        localStorage.clear();
+                        window.location.reload();
+                      }
+                    }}
                     className="flex items-center space-x-2 text-mood-ink/30 hover:text-red-400 transition-colors py-2 px-6 rounded-full border border-mood-ink/10"
                   >
-                    <LogOut size={16} />
-                    <span className="text-xs font-bold">로그아웃</span>
+                    <RotateCcw size={16} />
+                    <span className="text-xs font-bold">데이터 초기화</span>
                   </button>
                 </header>
 
