@@ -78,7 +78,7 @@ const renderProfileIcon = (seed: string, size: number = 24, className: string = 
 };
 
 const CLALMING_TRACKS = [
-  { id: 'calm', title: '평온한 피아노 선율', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+  { id: 'calm', title: '숲속의 평온한 선율', url: 'https://cdn.pixabay.com/audio/2022/02/22/audio_d0a13d6935.mp3' },
 ];
 
 // --- Components ---
@@ -416,6 +416,11 @@ export default function App() {
     setCurrentEmotion(emotion);
     setShowEmotionPicker(false);
     setShowChat(true);
+
+    // Try to play music on first real interaction
+    if (!isMusicPlaying) {
+      setIsMusicPlaying(true);
+    }
     
     setIsTyping(true);
     const initialQuestion = await getInitialQuestions(emotion);
@@ -496,7 +501,7 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-x-hidden w-full h-full"
+      className="min-h-screen relative overflow-x-hidden w-full flex flex-col"
       onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
     >
       <WeatherBackground emotion={currentEmotion} />
@@ -519,93 +524,99 @@ export default function App() {
         transition={{ type: 'spring', damping: 35, stiffness: 600, mass: 0.1 }}
       />
 
-      {authError && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] w-[90%] max-w-sm">
-          <div className="bg-white border-2 border-red-200 p-6 rounded-[32px] flex flex-col space-y-4 text-red-900 shadow-2xl vintage-card">
-            <div className="flex items-center space-x-3">
-              <div className="bg-red-100 p-2 rounded-full">
-                <Smile size={20} className="text-red-500 opacity-50" />
+      <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 w-full overflow-y-auto">
+        {authError && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[10000] w-[90%] max-w-sm">
+            <div className="bg-white border-2 border-red-200 p-6 rounded-[32px] flex flex-col space-y-4 text-red-900 shadow-2xl vintage-card">
+              <div className="flex items-center space-x-3">
+                <div className="bg-red-100 p-2 rounded-full">
+                  <Smile size={20} className="text-red-500 opacity-50" />
+                </div>
+                <p className="text-lg font-bold">앗! 설정이 필요해요</p>
               </div>
-              <p className="text-lg font-bold">앗! 설정이 필요해요</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm opacity-80 leading-relaxed font-chat">
-                몽글이가 당신을 기억하려면 Firebase 설정이 필요해요.<br/>
-              </p>
-              <div className="p-3 bg-red-50 rounded-xl text-[10px] font-medium border border-red-100">
-                Firebase Console → Authentication → Sign-in method → Anonymous '사용 설정'
+              <div className="space-y-2">
+                <p className="text-sm opacity-80 leading-relaxed font-chat">
+                  몽글이가 당신을 기억하려면 Firebase 설정이 필요해요.<br/>
+                </p>
+                <div className="p-3 bg-red-50 rounded-xl text-[10px] font-medium border border-red-100">
+                  Firebase Console → Authentication → Sign-in method → Anonymous '사용 설정'
+                </div>
               </div>
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => setAuthError(null)} 
-                className="flex-1 bg-mood-brown text-white py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
-              >
-                확인했어요
-              </button>
-              <button 
-                onClick={() => {
-                  setAuthError(null);
-                  if (!user) setUser({ uid: 'guest-' + Math.random().toString(36).substr(2, 9) } as any);
-                }} 
-                className="flex-1 bg-mood-beige text-mood-brown py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
-              >
-                Guest로 시작
-              </button>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => setAuthError(null)} 
+                  className="flex-1 bg-mood-brown text-white py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
+                >
+                  확인했어요
+                </button>
+                <button 
+                  onClick={() => {
+                    setAuthError(null);
+                    if (!user) setUser({ uid: 'guest-' + Math.random().toString(36).substr(2, 9) } as any);
+                  }} 
+                  className="flex-1 bg-mood-beige text-mood-brown py-3 rounded-2xl font-bold text-sm shadow-md active:scale-95"
+                >
+                  Guest로 시작
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      <audio 
-        ref={audioRef} 
-        loop
-        preload="auto"
-        onError={() => {
-          console.error("Audio Load Error");
-          setIsMusicPlaying(false);
-        }}
-        src={CLALMING_TRACKS[0].url}
-      />
-
-      <div className="fixed top-6 right-6 z-[10010] flex items-center space-x-2">
-        {isMusicPlaying && (
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-mood-beige/50 text-xs font-bold text-mood-brown shadow-sm"
-          >
-            {CLALMING_TRACKS[0].title}
-          </motion.div>
         )}
-        <div className="flex bg-white/60 backdrop-blur-md rounded-full shadow-lg border border-mood-beige/30 p-1">
-          <button 
-            onClick={() => {
-              setIsMusicPlaying(!isMusicPlaying);
-            }}
-            className="p-3 rounded-full bg-mood-brown text-white shadow-inner active:scale-95 transition-all w-12 h-12 flex items-center justify-center"
-          >
-            {isMusicPlaying ? <Pause size={18} /> : <Play size={18} className="translate-x-0.5" />}
-          </button>
-        </div>
-      </div>
 
-      <AnimatePresence mode="wait">
-        {showEmotionPicker ? (
-          <motion.div
-            key="picker"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center"
-          >
-            <div className="mb-4 text-mood-brown animate-float">
-              <Smile size={60} strokeWidth={1.5} />
-            </div>
-            <h1 className="text-4xl font-bold mb-3 mt-4 text-mood-brown leading-tight">오늘, 마음이 어때요?</h1>
-            <p className="text-mood-ink/60 mb-12 text-xl font-medium">당신의 몽글몽글한 감정을 가만히 들여다봐요.</p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-5xl px-4">
+        <audio 
+          ref={audioRef} 
+          loop
+          preload="auto"
+          crossOrigin="anonymous"
+          onError={(e) => {
+            console.error("Audio Load Error", e);
+            setIsMusicPlaying(false);
+          }}
+          src={CLALMING_TRACKS[0].url}
+        />
+
+        <div className="fixed top-6 right-6 z-[10010] flex items-center space-x-2">
+          {isMusicPlaying && (
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-mood-beige/50 text-xs font-bold text-mood-brown shadow-sm"
+            >
+              {CLALMING_TRACKS[0].title}
+            </motion.div>
+          )}
+          <div className="flex bg-white/60 backdrop-blur-md rounded-full shadow-lg border border-mood-beige/30 p-1">
+            <button 
+              onClick={() => {
+                setIsMusicPlaying(!isMusicPlaying);
+                if (!isMusicPlaying) {
+                   // Ensure it plays on first click
+                   playAudio();
+                }
+              }}
+              className="p-3 rounded-full bg-mood-brown text-white shadow-inner active:scale-95 transition-all w-12 h-12 flex items-center justify-center"
+            >
+              {isMusicPlaying ? <Pause size={18} /> : <Play size={18} className="translate-x-0.5" />}
+            </button>
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {showEmotionPicker ? (
+            <motion.div
+              key="picker"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="flex flex-col items-center w-full max-w-5xl"
+            >
+              <div className="mb-4 text-mood-brown animate-float">
+                <Smile size={80} strokeWidth={1} className="opacity-80" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 mt-4 text-mood-brown leading-tight text-center">오늘, 마음이 어때요?</h1>
+              <p className="text-mood-ink/60 mb-12 text-xl font-medium text-center">당신의 몽글몽글한 감정을 가만히 들여다봐요.</p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full px-4">
               {(Object.keys(EMOTIONS) as EmotionType[]).map((key) => {
                 const info = EMOTIONS[key];
                 return (
