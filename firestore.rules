@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    function incoming() {
+      return request.resource.data;
+    }
+    function existing() {
+      return resource.data;
+    }
+
+    // --- User Rules ---
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.keys().hasAll(['userId', 'name', 'bio', 'avatarSeed', 'stats', 'createdAt', 'updatedAt'])
+               && data.keys().size() == 7
+               && data.userId == request.auth.uid
+               && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+               && data.bio is string && data.bio.size() <= 500
+               && data.avatarSeed is string && data.avatarSeed.size() <= 100
+               && data.stats is map
+               && data.stats.treeLevel is number
+               && data.stats.leavesCount is number
+               && data.stats.flowersCount is number
+               && data.stats.totalWalkTime is number
+               && data.stats.totalSteps is number
+               && data.createdAt == request.time
+               && data.updatedAt == request.time;
+      }
+
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && (
+        // Action: Update Profile & Stats
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'bio', 'avatarSeed', 'stats', 'updatedAt'])
+        && incoming().name is string && incoming().name.size() <= 100
+        && incoming().bio is string && incoming().bio.size() <= 500
+        && incoming().avatarSeed is string && incoming().avatarSeed.size() <= 100
+        && incoming().stats is map
+        && incoming().updatedAt == request.time
+        && incoming().createdAt == existing().createdAt
+        && incoming().userId == existing().userId
+      );
+      
+      // Entries Subcollection
+      match /entries/{entryId} {
+        function isValidEntry(data) {
+          return data.keys().hasAll(['userId', 'date', 'emotion', 'content', 'activityDone', 'activityTime', 'steps', 'createdAt'])
+                 && data.userId == request.auth.uid
+                 && data.date is string 
+                 && data.emotion is string && data.emotion.size() <= 100
+                 && data.content is string && data.content.size() <= 10000
+                 && data.activityDone is string
+                 && data.activityTime is number
+                 && data.steps is number
+                 && (data.createdAt == request.time || data.createdAt == null); 
+        }
+
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(entryId) && isValidEntry(incoming());
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

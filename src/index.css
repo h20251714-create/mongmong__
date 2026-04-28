@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&family=Nanum+Pen+Script&family=Jua&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-mood-cream: #FDF6E3;
+  --color-mood-beige: #F5E9CC;
+  --color-mood-lavender: #E8E1F3;
+  --color-mood-sage: #DDE8C7;
+  --color-mood-blue: #C5E3F6;
+  --color-mood-peach: #FDD9C9;
+  --color-mood-brown: #8B5E3C;
+  --color-mood-ink: #4A4439;
+  
+  --font-sans: "Jua", sans-serif;
+  --font-serif: "Nanum Pen Script", cursive;
+  --font-chat: "Gaegu", cursive;
+}
+
+@layer base {
+  body {
+    @apply bg-mood-cream text-mood-ink font-sans transition-colors duration-1000 cursor-none;
+    background-image: radial-gradient(#E8E1F3 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+  }
+}
+
+/* Custom Vintage Soap Bubble Cursor */
+.cursor-drop {
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(
+    circle at 30% 30%, 
+    rgba(255, 255, 255, 0.2) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(200, 230, 255, 0.15) 75%,
+    rgba(255, 200, 240, 0.15) 90%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 999999;
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(2px) saturate(1.2);
+  transition: width 0.3s, height 0.3s, border-width 0.3s;
+}
+
+.cursor-drop::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 9px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+  filter: blur(0.5px);
+}
+
+.vintage-card {
+  @apply bg-[#FFFDF5]/30 backdrop-blur-2xl border-b-4 border-r-4 border-mood-brown/10 rounded-[45px] shadow-lg;
+  background-image: radial-gradient(circle at top right, rgba(165, 180, 252, 0.1) 0%, transparent 70%);
+}
+
+.rainbow-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 253, 245, 0.4) 0%,
+    rgba(215, 230, 255, 0.3) 25%,
+    rgba(235, 220, 255, 0.3) 50%,
+    rgba(255, 220, 240, 0.3) 75%,
+    rgba(255, 253, 245, 0.4) 100%
+  );
+  background-size: 400% 400%;
+  animation: rainbow-shift 25s ease-in-out infinite;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(135, 120, 100, 0.2);
+  border-radius: 10px;
+}
+
+@keyframes rainbow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2.5s ease-in-out infinite;
+}
+
+.glass-card {
+  @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm rounded-3xl;
+}
+
+.glass-btn {
+  @apply bg-white/80 backdrop-blur-sm border-2 border-mood-beige shadow-sm rounded-2xl hover:bg-white transition-all active:scale-95;
+}
+
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

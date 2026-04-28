@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and cumulative stats",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatarSeed": { "type": "string" },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "treeLevel": { "type": "number" },
+            "leavesCount": { "type": "number" },
+            "flowersCount": { "type": "number" },
+            "totalWalkTime": { "type": "number" },
+            "totalSteps": { "type": "number" }
+          },
+          "required": ["treeLevel", "leavesCount", "flowersCount", "totalWalkTime", "totalSteps"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "bio", "avatarSeed", "stats"]
+    },
+    "JournalEntry": {
+      "title": "Journal Entry",
+      "description": "Daily emotional walk record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "emotion": { "type": "string" },
+        "content": { "type": "string" },
+        "activityDone": { "type": "string" },
+        "activityTime": { "type": "number" },
+        "steps": { "type": "number" }
+      },
+      "required": ["id", "userId", "date", "emotion", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User document containing profile and aggregate stats"
+    },
+    "/users/{userId}/entries/{entryId}": {
+      "schema": "JournalEntry",
+      "description": "Subcollection for user's journal entries"
+    }
+  }
+}

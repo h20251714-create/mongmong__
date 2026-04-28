@@ -1,0 +1,12 @@
+{
+  "name": "Mood Walk",
+  "description": "Mood Walk is an AI-powered emotional healing app that helps users understand, manage, and improve their emotions through personalized activities, walking experiences, emotional journaling, and AI-generated emotional letters.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "Emotional Wellness",
+    "AI Mentorship",
+    "Walking Tracker"
+  ]
+}
