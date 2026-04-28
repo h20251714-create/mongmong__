@@ -9,15 +9,23 @@ let auth: any;
 let googleProvider: any;
 
 try {
+  console.log("Initializing Firebase with config:", firebaseConfig.projectId);
   app = initializeApp(firebaseConfig);
   db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
+  console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization failed:", error);
   // Provide dummy objects or handle gracefully to prevent total app crash
   db = {};
-  auth = { onAuthStateChanged: () => () => {} };
+  auth = { 
+    onAuthStateChanged: (cb: any) => {
+      console.warn("Using dummy auth observer");
+      return () => {};
+    },
+    currentUser: null
+  };
   googleProvider = {};
 }
 

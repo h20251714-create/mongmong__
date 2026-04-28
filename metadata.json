@@ -1,6 +1,6 @@
 {
-  "name": "Mood Walk",
-  "description": "Mood Walk is an AI-powered emotional healing app that helps users understand, manage, and improve their emotions through personalized activities, walking experiences, emotional journaling, and AI-generated emotional letters.",
+  "name": "몽글몽글 - 마음 산책",
+  "description": "몽글몽글은 당신의 지친 마음을 다정하게 안아주는 AI 감정 치유 앱입니다. 맞춤형 산책 활동, 감정 일기, 그리고 AI가 전하는 따뜻한 편지를 통해 매일 조금씩 마음의 평온을 찾아보세요.",
   "requestFramePermissions": [
     "geolocation"
   ],

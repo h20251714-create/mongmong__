@@ -306,9 +306,13 @@ export default function App() {
 
   const handleGoogleLogin = async () => {
     try {
+      if (!auth || !googleProvider || Object.keys(auth).length === 1) {
+        throw new Error("Firebase auth not properly initialized. Please check console.");
+      }
       await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Login Error:", err);
+      alert(`로그인 오류가 발생했습니다: ${err.message || "알 수 없는 오류"}`);
     }
   };
 
