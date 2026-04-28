@@ -3,29 +3,16 @@ import { ChatMessage, EmotionType } from "../types";
 
 // Helper to safely get API key from environment
 function getApiKey(): string | undefined {
-  // Try platform-injected process.env (Vite define)
-  try {
-    const key = process.env.GEMINI_API_KEY;
-    console.log("Checking GEMINI_API_KEY from process.env:", key ? "Found" : "Not Found");
-    if (key && key !== "MY_GEMINI_API_KEY" && key !== "undefined" && key !== "") {
-      return key;
-    }
-
-    // Fallback to GOOGLE_API_KEY
-    const googleKey = (process.env as any).GOOGLE_API_KEY;
-    if (googleKey && googleKey !== "undefined" && googleKey !== "") {
-      console.log("Found API key in process.env.GOOGLE_API_KEY");
-      return googleKey;
-    }
-  } catch (e) {
-    console.warn("process.env access error:", e);
+  // Try platform-injected process.env (Vite define) - strictly follow skill guidelines
+  const key = process.env.GEMINI_API_KEY;
+  if (key && key !== "MY_GEMINI_API_KEY" && key !== "undefined" && key !== "") {
+    return key;
   }
 
-  // Fallback to import.meta.env if provided
-  const viteKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (import.meta as any).env?.VITE_GOOGLE_API_KEY;
-  if (viteKey) {
-    console.log("Found API key in import.meta.env");
-    return viteKey;
+  // Backup for unexpected environment behavior
+  if (typeof (import.meta as any).env !== 'undefined') {
+    const viteKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+    if (viteKey && viteKey !== "" && viteKey !== "undefined") return viteKey;
   }
 
   return undefined;
@@ -40,7 +27,7 @@ const getAI = () => {
     const key = getApiKey();
     
     if (!key) {
-        console.error("GEMINI_API_KEY is completely missing from the environment.");
+        console.error("GEMINI_API_KEY is missing. Please set it in the environment.");
         return null;
     }
     
@@ -67,7 +54,7 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-flash-latest",
+      model: "gemini-3-flash-preview",
       contents: messages.map(m => ({
         role: m.role,
         parts: [{ text: m.text }]
@@ -80,7 +67,7 @@ export async function getEmotionalConversation(messages: ChatMessage[], currentE
     return response.text || "죄송해요, 잠시 생각을 정리하고 있어요. 다시 말씀해 주시겠어요?";
   } catch (error: any) {
     console.error("Gemini Conversation Error:", error);
-    return `죄송해요, 잠시 연결이 불안정해요. 마음을 정리하고 다시 올게요. (${error?.message?.substring(0, 50)})`;
+    return `죄송해요, 잠시 연결이 불안정해요. 마음을 정리하고 다시 올게요.`;
   }
 }
 
@@ -101,7 +88,7 @@ export async function generateDailyLetter(emotion: EmotionType, journalContent: 
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-flash-latest",
+      model: "gemini-3-flash-preview",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         systemInstruction: SYSTEM_PROMPT,
@@ -127,7 +114,7 @@ export async function getInitialQuestions(emotion: EmotionType) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-flash-latest",
+      model: "gemini-3-flash-preview",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         systemInstruction: SYSTEM_PROMPT,
@@ -140,4 +127,3 @@ export async function getInitialQuestions(emotion: EmotionType) {
     return "오늘 하루, 당신의 마음속에는 어떤 이야기가 담겨 있나요?";
   }
 }
-
